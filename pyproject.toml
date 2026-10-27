@@ -1,0 +1,33 @@
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --cov=src --cov-report=term-missing --cov-report=html --cov-fail-under=80"
+testpaths = ["tests"]
+markers = [
+    "unit: Pruebas unitarias de algoritmos matematicos",
+    "integration: Pruebas de integracion o API",
+    "property: Pruebas basadas en propiedades (Hypothesis)"
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = []
+
+[project]
+name = "proyecto-mate-discreta"
+version = "0.1.0"
+requires-python = ">=3.10"

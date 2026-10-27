@@ -1,0 +1,7 @@
+# QA & Testing Stack
+pytest>=7.4.0
+pytest-cov>=4.1.0        # Reportes de cobertura
+hypothesis>=6.80.0       # Property-Based Testing (ideal para mate discreta)
+ruff>=0.1.0              # Linter ultrarrápido
+black>=23.0.0            # Code Formatter
+pre-commit>=3.3.0        # Hooks locales antes de hacer commit
