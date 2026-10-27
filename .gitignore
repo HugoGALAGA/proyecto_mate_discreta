@@ -1,3 +1,4 @@
+# rehacer el grafico = graphify . --code-only; and graphify cluster-only .
 # Python & Virtual Envs
 __pycache__/
 *.py[cod]
@@ -14,3 +15,9 @@ coverage.xml
 # IDEs
 .vscode/
 .idea/
+
+# Graphify Outputs
+graphify-out/
+
+# contexto del local
+CONTEXT.md

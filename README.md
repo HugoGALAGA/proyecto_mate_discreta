@@ -5,6 +5,8 @@
 ![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)
 ![Coverage: >80%](https://img.shields.io/badge/coverage-%3E80%25-brightgreen)
 
+![Hollow Knight](src/img/hk.gif)
+
 Repositorio base para la implementación de algoritmos de **Matemática Discreta**, estructurado y diseñado bajo la metodología **Shift-Left QA**, prácticas modernas de **Integración Continua (CI/CD)** y principios internacionales **ISTQB**.
 
 ---
