@@ -46,3 +46,11 @@ prob_salvarse = 0.5
 [aleatoriedad]
 # Sin semilla = entropia del sistema. Para fijarla, descomenta:
 # semilla = 12345
+
+[layout]
+lienzo = 1000
+iteraciones = 300
+
+[api]
+version_contrato = 1
+semilla_max = 9007199254740992

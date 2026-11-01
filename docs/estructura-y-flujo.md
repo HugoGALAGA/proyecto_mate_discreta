@@ -48,7 +48,7 @@ Leyenda: ✅ ya existe · 🔲 por crear (definido en `docs/game-design.md`).
 proyecto_mate_discreta/
 ├── .github/workflows/qa-pipeline.yml   ✅ GitHub Actions (gate rápido)
 ├── Jenkinsfile                         ✅ pipeline completo con E2E
-├── config.toml                         ✅ TODOS los parámetros del juego
+├── config.toml                         ✅ TODOS los parámetros del juego (juego, layout y API)
 ├── pyproject.toml                      ✅ dependencias y herramientas
 ├── uv.lock                             ✅ versiones exactas (se commitea)
 ├── .python-version                     ✅ 3.11
@@ -56,6 +56,7 @@ proyecto_mate_discreta/
 ├── generar_contexto.py                 ✅ genera CONTEXT.md local (ignorado por git)
 ├── README.md                           ✅ (desactualizado, por renovar)
 ├── docs/
+│   ├── contrato-api.md                 ✅ formato JSON de la API (v1)       
 │   ├── game-design.md                  ✅ reglas completas del juego
 │   ├── estructura-y-flujo.md           ✅ este documento
 │   ├── test-plan.md                    🔲 estrategia de pruebas (vacío)
@@ -68,6 +69,7 @@ proyecto_mate_discreta/
 │   ├── rng.py                          🔲 generador único con semilla inyectable
 │   ├── graph/                          ✅ (vacío)
 │   │   ├── model.py                    🔲 Node, Edge, Graph
+│   │   ├── layout.py                   🔲 posiciones (x, y) por fuerzas, usa rng   
 │   │   ├── generator.py                🔲 genera el mapa y regenera si falla
 │   │   ├── validator.py                🔲 validaciones del mapa (sección 2.5)
 │   │   └── algorithms.py               🔲 Dijkstra y Prim
@@ -85,7 +87,8 @@ proyecto_mate_discreta/
 │   │   ├── endings.json                🔲 10 finales de Carroñero
 │   │   └── amputaciones.json           🔲 extremidades
 │   └── api/
-│       └── app.py                      ✅ crear_app(); /api/health; sirve frontend/dist
+│       ├── app.py                      ✅ crear_app(); /api/health; sirve frontend/dist
+│       └── schemas.py                  🔲 modelos Pydantic del contrato
 ├── frontend/                           # React + Vite
 │   ├── package.json, package-lock.json, vite.config.js, eslint.config.js, index.html
 │   ├── public/assets/manifest.json     ✅ galería de Sources (hoy vacía)
@@ -120,7 +123,8 @@ config.toml ──► src/config.py ──► src/graph, src/sim, src/stats
 - La simulación **no** corre en tiempo real: se calcula completa y rápido, y la interfaz **reproduce** el resultado.
 - En producción y en E2E, FastAPI sirve `frontend/dist/` (un solo servidor, un solo puerto).
 - En desarrollo, Vite corre aparte y redirige `/api` a `http://127.0.0.1:8000`.
-- Hoy solo existe `GET /api/health`. El **contrato JSON** de `/api/simulate` (mapa, eventos, estadísticas, semilla) debe definirse **antes** de programar API y frontend.
+- Hoy solo existe `GET /api/health`. 
+- El contrato (`GET /api/parametros`, `POST /api/simulate`) está definido en `docs/contrato-api.md` y es **obligatorio**: se implementa con modelos Pydantic en `src/api/schemas.py`. Hoy solo existe `GET /api/health`.
 
 ---
 
@@ -132,6 +136,7 @@ config.toml ──► src/config.py ──► src/graph, src/sim, src/stats
 - Comentarios mínimos: solo donde la intención no sea obvia.
 - Ninguna dependencia nueva sin acordarla. Si se acuerda, se agrega a `pyproject.toml` y se corre `uv lock`.
 - Los nombres de los parámetros de `config.toml` son un contrato: no se renombran sin avisar.
+- El formato JSON vive en `docs/contrato-api.md`. Un cambio de formato se aprueba primero en ese documento y después en el código.
 
 ### Python
 - Pasa `ruff check .` y `ruff format --check .` sin cambios.
@@ -143,6 +148,7 @@ config.toml ──► src/config.py ──► src/graph, src/sim, src/stats
 - **Ningún número del juego va escrito en el código**: todo viene de `config.toml`.
 - **Determinismo:** misma semilla, mismo registro de eventos, byte a byte.
 - Cada subcarpeta de `src/` tiene su `__init__.py`.
+- Las posiciones del mapa las calcula `graph/layout.py` con el generador con semilla; el frontend nunca las inventa.
 
 ### Frontend
 - JavaScript con componentes de función y hooks. Sin TypeScript.
@@ -263,6 +269,7 @@ Cada paso termina con tests en verde y un commit.
 9. **Contrato JSON y `POST /api/simulate`.**
 10. **Frontend:** menú, opciones, Sources, partida (animación), dashboard.
 11. **E2E** de cada flujo y revisión del balance con la configuración.
+12. api/schemas.py, GET /api/parametros, POST /api/simulate y tests del contrato
 
 ---
 
@@ -271,7 +278,7 @@ Cada paso termina con tests en verde y un commit.
 Plantilla recomendada, un módulo por vez:
 
 ```
-Contexto: lee docs/game-design.md y docs/estructura-y-flujo.md.
+Contexto: lee docs/game-design.md, docs/estructura-y-flujo.md y docs/contrato-api.md.
 Tarea: implementa <módulo> (paso N de la sección 10).
 Contrato: <firmas de funciones y estructuras de datos esperadas>.
 Reglas: sigue la sección 5 del documento de estructura; sin dependencias nuevas.
@@ -286,10 +293,11 @@ Si algo del diseño es ambiguo, pregunta antes de decidir.
 **Hecho**
 - Entorno completo (Python 3.11, uv, FastAPI, React + Vite), CI en GitHub Actions en verde y flujo `dev` → `main` probado.
 - Un test por nivel funcionando, incluido un E2E real con Playwright.
+- Contrato JSON v1 definido (docs/contrato-api.md).
 
 **Pendiente**
 - Toda la lógica del juego (sección 10).
-- Contrato JSON de la API.
+- Implementar schemas.py y los endpoints del contrato.
 - Llenar `docs/test-plan.md` y `docs/test-cases.md` a medida que se escriben las pruebas.
 - Configurar la instancia de Jenkins.
 - Actualizar `README.md` y la versión de ruff en `.pre-commit-config.yaml`.
