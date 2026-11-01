@@ -1,0 +1,48 @@
+# Parametros del Zombie Survival Engine. Ver docs/game-design.md (seccion 13).
+# Todo se afina aqui, sin tocar la logica.
+
+[mapa]
+nodos_min = 30
+nodos_max = 35
+cantidad_zs = 1
+grado_max_l = 4
+grado_ls_min = 2
+grado_ls_max = 3
+grado_zs_min = 2
+grado_zs_max = 3
+hojas_max = 4
+peso_corto_min = 1
+peso_corto_max = 5
+peso_largo_min = 6
+peso_largo_max = 10
+spawn_distancia_min = 15
+spawn_nodos_min = 6
+intentos_max_generacion = 1000
+
+[vision]
+zombie = 15
+zombie_en_ls = 5
+superviviente_zombie = 10
+superviviente_zs = 5
+
+[tiempos]
+tick_segundos = 0.5
+cooldown_zombie = 0.5
+cooldown_superviviente = 1.5
+factor_viaje_zombie_corto = 1.0
+factor_viaje_zombie_largo = 2.0
+factor_viaje_superviviente = 1.5
+limite_partida = 120
+limite_pruebas = 60
+
+[entidades]
+supervivientes_min = 3
+supervivientes_max = 5
+zombies_iniciales = 1
+
+[ls]
+prob_salvarse = 0.5
+
+[aleatoriedad]
+# Sin semilla = entropia del sistema. Para fijarla, descomenta:
+# semilla = 12345

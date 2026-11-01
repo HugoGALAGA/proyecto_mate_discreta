@@ -3,14 +3,16 @@
 Uso (desde la raíz del proyecto):
     python generar_contexto.py
 """
+
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent
 SALIDA = RAIZ / "CONTEXT.md"
 
-# Carpetas que NO se recorren (pesadas o sin valor para dar contexto)
+# Carpetas que NO se recorren (pesadas, temporales o sin valor de negocio)
 CARPETAS_IGNORADAS = {
     ".git",
+    ".github",
     ".venv",
     "venv",
     "__pycache__",
@@ -20,16 +22,46 @@ CARPETAS_IGNORADAS = {
     "graphify-out",
     "node_modules",
     ".mypy_cache",
+    "pre_diseño",  # Borradores de interfaz
 }
 
-# Archivos que NO se incluyen
-ARCHIVOS_IGNORADOS = {"uv.lock", ".coverage", "CONTEXT.md", "generar_contexto.py"}
+# Archivos específicos que NO se incluyen en la lectura de contexto
+ARCHIVOS_IGNORADOS = {
+    "uv.lock",
+    ".coverage",
+    "CONTEXT.md",
+    "generar_contexto.py",
+    "nodesource_setup.sh",  # Script masivo de setup de NodeSource
+    "setup_entorno.sh",  # Script de provisionamiento local
+}
 
-# Extensiones cuyo contenido SÍ se copia
-EXTENSIONES = {".py", ".toml", ".md", ".yaml", ".yml", ".txt", ".cfg", ".ini"}
-NOMBRES_EXTRA = {".gitignore"}
+# Extensiones cuyo contenido SÍ se incluye en la sección de Contenido
+EXTENSIONES = {
+    # Backend / Config
+    ".py",
+    ".toml",
+    ".yaml",
+    ".yml",
+    ".ini",
+    ".cfg",
+    # Frontend / Web
+    ".js",
+    ".jsx",
+    ".ts",
+    ".tsx",
+    ".html",
+    ".css",
+    ".json",
+    # Documentación
+    ".md",
+    ".txt",
+}
 
-# Máximo de caracteres por archivo (si se pasa, se recorta)
+# Archivos especiales sin extensión a incluir
+NOMBRES_EXTRA = {".gitignore", "Jenkinsfile", "Dockerfile"}
+
+# Máximo de caracteres por archivo
+# (para evitar desbordar el contexto si hay archivos enormes)
 MAX_CARACTERES = 15_000
 
 
@@ -49,14 +81,12 @@ def listar_archivos() -> list[Path]:
 
 
 def construir_arbol(archivos: list[Path]) -> str:
-    # Paso 1: armar un diccionario anidado {carpeta: {archivo: {}}}
     arbol: dict = {}
     for rel in archivos:
         nodo = arbol
         for parte in rel.parts:
             nodo = nodo.setdefault(parte, {})
 
-    # Paso 2: recorrerlo dibujando las ramas (carpetas primero)
     lineas = [f"{RAIZ.name}/"]
 
     def recorrer(nodo: dict, prefijo: str) -> None:
@@ -76,9 +106,9 @@ def main() -> None:
     archivos = listar_archivos()
     partes = [
         f"# Contexto del proyecto: {RAIZ.name}\n",
-        "## Estructura\n",
+        "## Estructura del Proyecto\n",
         "```\n" + construir_arbol(archivos) + "\n```\n",
-        "## Contenido\n",
+        "## Contenido de Archivos Relevantes\n",
     ]
 
     for rel in archivos:
@@ -88,16 +118,19 @@ def main() -> None:
             texto = (RAIZ / rel).read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
             continue
+
         if len(texto) > MAX_CARACTERES:
-            texto = texto[:MAX_CARACTERES] + "\n... [recortado]"
+            texto = texto[:MAX_CARACTERES] + "\n... [recortado por tamaño]"
+
         if not texto.strip():
             partes.append(f"### {rel.as_posix()}\n\n(archivo vacío)\n")
             continue
-        # Si el archivo ya contiene ```, usamos una cerca más larga
-        # para no romper el formato
+
+        # Evita romper bloques de código Markdown si el archivo trae ```
         cerca = "```"
         while cerca in texto:
             cerca += "`"
+
         lenguaje = rel.suffix.lstrip(".") or "text"
         partes.append(f"### {rel.as_posix()}\n\n{cerca}{lenguaje}\n{texto}\n{cerca}\n")
 
@@ -105,7 +138,10 @@ def main() -> None:
     SALIDA.write_text(resultado, encoding="utf-8")
     caracteres = len(resultado)
     tokens = caracteres // 4
-    print(f"Listo: {SALIDA.name} ({caracteres:,} caracteres, ~{tokens:,} tokens)")
+    print(
+        f"✅ Contexto limpio generado: {SALIDA.name}"
+        f"({caracteres:,} caracteres, ~{tokens:,} tokens estimación)"
+    )
 
 
 if __name__ == "__main__":

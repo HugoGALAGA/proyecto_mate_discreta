@@ -21,3 +21,25 @@ graphify-out/
 
 # contexto del local
 CONTEXT.md
+# Frontend
+node_modules/
+frontend/dist/
+
+# Reportes de QA
+playwright-report/
+test-results/
+reports/
+.ruff_cache/
+
+#creador del entorno
+setup_entorno.sh
+
+# Contexto local
+CONTEXT*.md
+
+# Hypothesis
+.hypothesis/
+
+# Windows
+Thumbs.db
+desktop.ini
